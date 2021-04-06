@@ -29,10 +29,14 @@ J4 <- -0.00000161
 
 # Functions ------------------------------
 
+# Eccentric anomaly equation has no closed form solution
+# M = E - e*sin(E)
+# This function iteratively solves for E
 # e = eccentricity
 # M = mean anomaly
 # E_n = eccentric anomaly guess
 # thres = threshold
+# Returns: Eccentric anomaly 
 NewtonRaphson <- function(e, M, E_n = M, thres = 10^-6){
   E_m <- 2*pi
   while(abs(E_m - E_n) < thres){
@@ -126,15 +130,15 @@ ground_track_repeat <- function(n_p, n_d, e, i){
 max_earth_central_ang <- function(H){return(acos(r_E/(r_E + H)))}
 # H = altitude
 # nadir = nadir angle; angle between line of sight and nadir point
-# tea = target elevation angle
+# tea = target elevation angle; angle between line of sight and ground
 # Returns: earth central angle (rad)
 earth_central_ang <- function(tea, nadir){return(pi/2 - tea - nadir)}
 # H = altitude
 # Returns: angular radius of the Earth (rad)
 ang_rad <- function(H){asin(r_E/(r_E + H))}
 # H = altitude
-# lambda = central earth angle
-# tea = target elevation angle
+# lambda = central earth angle; earth angle btw nadir and vector from earth center to target
+# tea = target elevation angle; angle between line of sight and ground
 # Returns: angular radius of the Earth (rad)
 nadir_ang <- function(H = NULL, lambda = NULL, tea = NULL){
   if(is.null(H)){return(pi/2-lambda-tea)}
@@ -144,8 +148,8 @@ nadir_ang <- function(H = NULL, lambda = NULL, tea = NULL){
   stop("insufficient arguments")
 }
 # H = altitude
-# lambda = central earth angle
-# nadir  = nadir angle; angle between line of sight and nadir point
+# lambda = central earth angle; earth angle btw nadir and vector from earth center to target
+# nadir  = nadir angle; angle btw line of sight and nadir
 # Returns: target elevation angle (rad)
 tgt_elev_ang <- function(H = NULL, lambda = NULL, nadir = NULL){
   if(is.null(H)){return(pi/2-lambda-nadir)}
@@ -153,11 +157,10 @@ tgt_elev_ang <- function(H = NULL, lambda = NULL, nadir = NULL){
   if(!is.null(nadir)){return(acos(sin(nadir)/sin(a_rad)))}
   stop("insufficient arguments")
 }
-# lambda = central earth angle
-# nadir  = nadir angle; angle between line of sight and nadir point
-# Returns: slant range; distance between satellite and ground
+# lambda = central earth angle; earth angle btw nadir and vector from earth center to target
+# nadir  = nadir angle; angle between line of sight and nadir
+# Returns: slant range; distance btw satellite and ground
 slant_range <- function(lamda, nadir){return(r_E*sin(lamda)/sin(nadir))} 
-
 
 # Testing --------------------------------
 
